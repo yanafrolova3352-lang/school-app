@@ -1,0 +1,422 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Школьный помощник</title>
+<script src="https://st.max.ru/js/max-web-app.js"></script>
+<style>
+  * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
+  body { background:#f0f4f8; color:#1e293b; padding-bottom:70px; }
+  header {
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    color:#fff; padding:20px; text-align:center;
+    box-shadow:0 4px 12px rgba(0,0,0,0.1);
+  }
+  header h1 { font-size:20px; }
+  header p { font-size:13px; opacity:0.9; margin-top:4px; }
+  .container { padding:16px; }
+  .card {
+    background:#fff; border-radius:14px; padding:16px;
+    margin-bottom:14px; box-shadow:0 2px 8px rgba(0,0,0,0.06);
+  }
+  .card h2 {
+    font-size:16px; margin-bottom:10px;
+    display:flex; align-items:center; gap:8px;
+    color:#4f46e5;
+  }
+  .card h2 .badge {
+    background:#eef2ff; color:#4f46e5; font-size:11px;
+    padding:3px 8px; border-radius:10px; margin-left:auto;
+  }
+  .schedule-item {
+    display:flex; align-items:center; padding:10px 0;
+    border-bottom:1px solid #f1f5f9;
+  }
+  .schedule-item:last-child { border:none; }
+  .time { font-weight:600; color:#4f46e5; min-width:60px; font-size:14px; }
+  .info { flex:1; }
+  .info .name { font-size:14px; font-weight:500; }
+  .info .meta { font-size:12px; color:#64748b; margin-top:2px; }
+  .room {
+    background:#fef3c7; color:#92400e; font-size:11px;
+    padding:4px 8px; border-radius:8px; font-weight:600;
+  }
+  .bell {
+    display:flex; justify-content:space-between;
+    padding:8px 0; border-bottom:1px dashed #e2e8f0; font-size:13px;
+  }
+  .bell:last-child { border:none; }
+  .bell.now { background:#dcfce7; padding:8px; border-radius:8px; font-weight:600; }
+  .book {
+    display:flex; gap:10px; padding:10px 0;
+    border-bottom:1px solid #f1f5f9;
+  }
+  .book:last-child { border:none; }
+  .book-cover {
+    width:40px; height:55px; border-radius:6px;
+    background:linear-gradient(135deg,#818cf8,#c084fc);
+    display:flex; align-items:center; justify-content:center;
+    color:#fff; font-size:18px;
+  }
+  .book-info { flex:1; }
+  .book-info .title { font-size:13px; font-weight:600; }
+  .book-info .author { font-size:11px; color:#64748b; margin-top:2px; }
+  .book-info .actions { margin-top:6px; display:flex; gap:6px; }
+  .btn-mini {
+    background:#eef2ff; color:#4f46e5; border:none;
+    padding:4px 10px; border-radius:6px; font-size:11px;
+    cursor:pointer; font-weight:600;
+  }
+  .btn-mini:hover { background:#e0e7ff; }
+  .notif {
+    display:flex; gap:10px; padding:10px;
+    background:#fffbeb; border-left:3px solid #f59e0b;
+    border-radius:8px; margin-bottom:8px; font-size:12px;
+  }
+  .notif.grade { background:#ecfdf5; border-color:#10b981; }
+  .notif .icon { font-size:18px; }
+  .menu-item {
+    display:flex; justify-content:space-between;
+    padding:8px 0; border-bottom:1px dashed #e2e8f0; font-size:13px;
+  }
+  .menu-item:last-child { border:none; }
+  .price { color:#059669; font-weight:600; }
+  .reminder {
+    display:flex; align-items:center; gap:10px;
+    padding:10px; background:#f0f9ff; border-radius:8px;
+    margin-bottom:8px; font-size:13px;
+  }
+  .reminder .emoji { font-size:20px; }
+  nav {
+    position:fixed; bottom:0; left:0; right:0;
+    background:#fff; display:flex; justify-content:space-around;
+    padding:10px 0; box-shadow:0 -2px 12px rgba(0,0,0,0.08);
+    border-top:1px solid #f1f5f9;
+  }
+  nav button {
+    background:none; border:none; font-size:11px;
+    color:#94a3b8; display:flex; flex-direction:column;
+    align-items:center; gap:3px; cursor:pointer;
+    padding:4px 12px; border-radius:8px; transition:0.2s;
+  }
+  nav button.active { color:#4f46e5; background:#eef2ff; }
+  nav button .ico { font-size:20px; }
+  .page { display:none; }
+  .page.active { display:block; }
+  .toggle {
+    display:flex; gap:6px; margin-bottom:12px;
+    background:#f1f5f9; padding:4px; border-radius:10px;
+  }
+  .toggle button {
+    flex:1; background:none; border:none; padding:8px;
+    font-size:12px; border-radius:8px; cursor:pointer;
+    color:#64748b; font-weight:500;
+  }
+  .toggle button.active { background:#fff; color:#4f46e5; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
+</style>
+</head>
+<body>
+
+<header>
+  <h1>🎓 Школьный помощник</h1>
+  <p id="dateToday"></p>
+</header>
+
+<div class="container">
+
+  <div class="page active" id="page-home">
+    <div class="card">
+      <h2>📚 Расписание уроков <span class="badge" id="dayBadge"></span></h2>
+      <div id="lessonsList"></div>
+    </div>
+    <div class="card">
+      <h2>🔔 Расписание звонков</h2>
+      <div id="bellsList"></div>
+    </div>
+    <div class="card">
+      <h2>🏃 Секции и кружки</h2>
+      <div id="clubsList"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-library">
+    <div class="card">
+      <h2>📖 Библиотека</h2>
+      <div class="toggle">
+        <button class="active" onclick="switchLib('books', this)">Произведения</button>
+        <button onclick="switchLib('textbooks', this)">Учебники</button>
+      </div>
+      <div id="libraryList"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-notif">
+    <div class="card">
+      <h2>🔔 Уведомления <span class="badge" id="notifCount"></span></h2>
+      <div id="notifList"></div>
+    </div>
+  </div>
+
+  <div class="page" id="page-food">
+    <div class="card">
+      <h2>🍽 Меню на сегодня <span class="badge" id="foodDay"></span></h2>
+      <div id="menuList"></div>
+      <p style="font-size:11px;color:#64748b;margin-top:12px;">* Меню обновляется ежедневно администрацией школы</p>
+    </div>
+  </div>
+
+  <div class="page" id="page-remind">
+    <div class="card">
+      <h2>⏰ Напоминания</h2>
+      <div id="remindersList"></div>
+      <button class="btn-mini" style="margin-top:10px;padding:8px 16px;font-size:12px;" onclick="testNotify()">
+        🔔 Проверить уведомления
+      </button>
+    </div>
+  </div>
+
+</div>
+
+<nav>
+  <button class="active" onclick="showPage('home', this)"><span class="ico">📅</span>Расписание</button>
+  <button onclick="showPage('library', this)"><span class="ico">📖</span>Библиотека</button>
+  <button onclick="showPage('notif', this)"><span class="ico">🔔</span>Уведомления</button>
+  <button onclick="showPage('food', this)"><span class="ico">🍽</span>Столовая</button>
+  <button onclick="showPage('remind', this)"><span class="ico">⏰</span>Ещё</button>
+</nav>
+
+<script>
+const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const today = new Date();
+const dayIndex = today.getDay();
+
+const schedule = {
+  1: [
+    {time:'08:30', name:'Математика', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
+    {time:'09:25', name:'Русский язык', teacher:'Петров С.В.', room:'118', floor:'1 этаж'},
+    {time:'10:25', name:'Физика', teacher:'Сидорова Е.Н.', room:'310', floor:'3 этаж'},
+    {time:'11:20', name:'История', teacher:'Кузнецов Д.А.', room:'205', floor:'2 этаж'},
+    {time:'12:20', name:'Физкультура', teacher:'Орлов М.И.', room:'Спортзал', floor:'1 этаж'}
+  ],
+  2: [
+    {time:'08:30', name:'Литература', teacher:'Петров С.В.', room:'118', floor:'1 этаж'},
+    {time:'09:25', name:'Алгебра', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
+    {time:'10:25', name:'Химия', teacher:'Морозова Л.К.', room:'312', floor:'3 этаж'},
+    {time:'11:20', name:'Английский', teacher:'Смирнова О.В.', room:'210', floor:'2 этаж'},
+    {time:'12:20', name:'География', teacher:'Волков П.Р.', room:'207', floor:'2 этаж'}
+  ],
+  3: [
+    {time:'08:30', name:'Геометрия', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
+    {time:'09:25', name:'Биология', teacher:'Морозова Л.К.', room:'312', floor:'3 этаж'},
+    {time:'10:25', name:'Русский язык', teacher:'Петров С.В.', room:'118', floor:'1 этаж'},
+    {time:'11:20', name:'Информатика', teacher:'Зайцев К.Н.', room:'401', floor:'4 этаж'},
+    {time:'12:20', name:'Обществознание', teacher:'Кузнецов Д.А.', room:'205', floor:'2 этаж'}
+  ],
+  4: [
+    {time:'08:30', name:'Физика', teacher:'Сидорова Е.Н.', room:'310', floor:'3 этаж'},
+    {time:'09:25', name:'Литература', teacher:'Петров С.В.', room:'118', floor:'1 этаж'},
+    {time:'10:25', name:'Алгебра', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
+    {time:'11:20', name:'ОБЖ', teacher:'Орлов М.И.', room:'Спортзал', floor:'1 этаж'},
+    {time:'12:20', name:'Английский', teacher:'Смирнова О.В.', room:'210', floor:'2 этаж'}
+  ],
+  5: [
+    {time:'08:30', name:'История', teacher:'Кузнецов Д.А.', room:'205', floor:'2 этаж'},
+    {time:'09:25', name:'Химия', teacher:'Морозова Л.К.', room:'312', floor:'3 этаж'},
+    {time:'10:25', name:'География', teacher:'Волков П.Р.', room:'207', floor:'2 этаж'},
+    {time:'11:20', name:'Физкультура', teacher:'Орлов М.И.', room:'Спортзал', floor:'1 этаж'},
+    {time:'12:20', name:'Классный час', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'}
+  ]
+};
+
+const bells = [
+  {n:'1 урок', start:'08:30', end:'09:15'},
+  {n:'2 урок', start:'09:25', end:'10:10'},
+  {n:'3 урок', start:'10:25', end:'11:10'},
+  {n:'4 урок', start:'11:20', end:'12:05'},
+  {n:'5 урок', start:'12:20', end:'13:05'},
+  {n:'6 урок', start:'13:15', end:'14:00'}
+];
+
+const clubs = [
+  {day:'Пн', name:'Баскетбол', time:'15:00', place:'Спортзал'},
+  {day:'Вт', name:'Робототехника', time:'15:30', place:'Каб. 401'},
+  {day:'Ср', name:'Хор', time:'16:00', place:'Актовый зал'},
+  {day:'Чт', name:'Шахматы', time:'15:00', place:'Каб. 208'},
+  {day:'Пт', name:'Плавание', time:'16:30', place:'Бассейн'}
+];
+
+const books = [
+  {title:'Война и мир', author:'Л.Н. Толстой', type:'books', icon:'📕'},
+  {title:'Преступление и наказание', author:'Ф.М. Достоевский', type:'books', icon:'📗'},
+  {title:'Мастер и Маргарита', author:'М.А. Булгаков', type:'books', icon:'📘'},
+  {title:'Евгений Онегин', author:'А.С. Пушкин', type:'books', icon:'📙'},
+  {title:'Учебник алгебры 9кл', author:'Макарычев Ю.Н.', type:'textbooks', icon:'📐'},
+  {title:'Учебник физики 9кл', author:'Перышкин А.В.', type:'textbooks', icon:'⚛️'},
+  {title:'Учебник истории 9кл', author:'Юдовская А.Я.', type:'textbooks', icon:'🏛'},
+  {title:'Учебник химии 9кл', author:'Габриелян О.С.', type:'textbooks', icon:'🧪'}
+];
+
+const notifications = [
+  {icon:'⚠️', text:'Изменение в расписании: физика перенесена в каб. 305 (3 этаж)', type:'warn'},
+  {icon:'📝', text:'Новая оценка: Математика — 5 (контрольная работа)', type:'grade'},
+  {icon:'⚠️', text:'Замена: вместо истории будет география, каб. 207', type:'warn'},
+  {icon:'📝', text:'Новая оценка: Литература — 4 (сочинение)', type:'grade'}
+];
+
+const menu = {
+  1: [{name:'Каша рисовая с маслом', price:'45₽'}, {name:'Чай с лимоном', price:'20₽'}, {name:'Булочка', price:'30₽'}],
+  2: [{name:'Суп куриный с лапшой', price:'60₽'}, {name:'Котлета с пюре', price:'85₽'}, {name:'Компот', price:'25₽'}],
+  3: [{name:'Макароны с сыром', price:'70₽'}, {name:'Салат овощной', price:'40₽'}, {name:'Сок яблочный', price:'35₽'}],
+  4: [{name:'Борщ со сметаной', price:'65₽'}, {name:'Рыба запечённая с рисом', price:'95₽'}, {name:'Кисель', price:'20₽'}],
+  5: [{name:'Плов с курицей', price:'90₽'}, {name:'Овощная нарезка', price:'35₽'}, {name:'Морс клюквенный', price:'30₽'}]
+};
+
+const reminders = [
+  {emoji:'💧', text:'Перерыв на воду — выпей стакан воды'},
+  {emoji:'🍎', text:'Перекус: яблоко / батончик (11:15)'},
+  {emoji:'🧘', text:'5-минутная разминка для глаз и спины'},
+  {emoji:'🍽', text:'Обед в столовой: 13:10–13:45'},
+  {emoji:'😴', text:'Отдых после уроков: 30 мин без телефона'}
+];
+
+document.getElementById('dateToday').textContent = 
+  `${days[dayIndex]}, ${today.toLocaleDateString('ru-RU')}`;
+document.getElementById('dayBadge').textContent = days[dayIndex];
+document.getElementById('foodDay').textContent = days[dayIndex];
+
+const lessonsList = document.getElementById('lessonsList');
+const todayLessons = schedule[dayIndex] || schedule[1];
+todayLessons.forEach(l => {
+  lessonsList.innerHTML += `
+    <div class="schedule-item">
+      <div class="time">${l.time}</div>
+      <div class="info">
+        <div class="name">${l.name}</div>
+        <div class="meta">${l.teacher} • ${l.floor}</div>
+      </div>
+      <div class="room">каб. ${l.room}</div>
+    </div>`;
+});
+
+const bellsList = document.getElementById('bellsList');
+const now = today.getHours()*60 + today.getMinutes();
+bells.forEach(b => {
+  const [sh,sm] = b.start.split(':').map(Number);
+  const [eh,em] = b.end.split(':').map(Number);
+  const s = sh*60+sm, e = eh*60+em;
+  const isNow = now >= s && now <= e;
+  bellsList.innerHTML += `
+    <div class="bell ${isNow?'now':''}">
+      <span>${b.n}</span>
+      <span>${b.start} – ${b.end} ${isNow?'🔔 идёт':''}</span>
+    </div>`;
+});
+
+const clubsList = document.getElementById('clubsList');
+clubs.forEach(c => {
+  const isToday = (c.day === ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][dayIndex]);
+  clubsList.innerHTML += `
+    <div class="schedule-item">
+      <div class="time">${c.day} ${c.time}</div>
+      <div class="info">
+        <div class="name">${c.name}</div>
+        <div class="meta">${c.place}</div>
+      </div>
+      ${isToday?'<div class="room" style="background:#dcfce7;color:#065f46;">сегодня</div>':''}
+    </div>`;
+});
+
+let libFilter = 'books';
+function renderLibrary() {
+  const lib = document.getElementById('libraryList');
+  lib.innerHTML = '';
+  books.filter(b => b.type === libFilter).forEach(b => {
+    lib.innerHTML += `
+      <div class="book">
+        <div class="book-cover">${b.icon}</div>
+        <div class="book-info">
+          <div class="title">${b.title}</div>
+          <div class="author">${b.author}</div>
+          <div class="actions">
+            <button class="btn-mini" onclick="alert('Открываю: ${b.title}')">Читать</button>
+            <button class="btn-mini" onclick="alert('Добавлено в закладки')">★ В закладки</button>
+          </div>
+        </div>
+      </div>`;
+  });
+}
+function switchLib(type, btn) {
+  libFilter = type;
+  document.querySelectorAll('#page-library .toggle button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  renderLibrary();
+}
+renderLibrary();
+
+const notifList = document.getElementById('notifList');
+document.getElementById('notifCount').textContent = notifications.length;
+notifications.forEach(n => {
+  notifList.innerHTML += `
+    <div class="notif ${n.type === 'grade' ? 'grade' : ''}">
+      <div class="icon">${n.icon}</div>
+      <div>${n.text}</div>
+    </div>`;
+});
+
+const menuList = document.getElementById('menuList');
+const todayMenu = menu[dayIndex] || menu[1];
+todayMenu.forEach(m => {
+  menuList.innerHTML += `
+    <div class="menu-item">
+      <span>${m.name}</span>
+      <span class="price">${m.price}</span>
+    </div>`;
+});
+
+const remindersList = document.getElementById('remindersList');
+reminders.forEach(r => {
+  remindersList.innerHTML += `
+    <div class="reminder">
+      <span class="emoji">${r.emoji}</span>
+      <span>${r.text}</span>
+    </div>`;
+});
+
+function showPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function testNotify() {
+  if (!('Notification' in window)) {
+    alert('Браузер не поддерживает уведомления');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    if (perm === 'granted') {
+      new Notification('🎓 Школьный помощник', {
+        body: 'Напоминание: перерыв на обед в 13:10 🍽'
+      });
+    } else {
+      alert('Разрешите уведомления в настройках браузера');
+    }
+  });
+}
+
+setInterval(() => {
+  const n = new Date();
+  const mins = n.getHours()*60 + n.getMinutes();
+  if (mins === 13*60+10 && Notification.permission === 'granted') {
+    new Notification('🍽 Время обеда!', { body: 'Спускайся в столовую на 1 этаж' });
+  }
+  if (mins === 11*60+15 && Notification.permission === 'granted') {
+    new Notification('🍎 Перекус', { body: 'Сделай перерыв и перекуси' });
+  }
+}, 60000);
+</script>
+</body>
+</html>
