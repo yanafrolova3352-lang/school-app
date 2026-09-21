@@ -108,7 +108,11 @@
     display:flex; gap:6px; margin-bottom:12px;
     background:#f1f5f9; padding:4px; border-radius:10px;
   }
-  font-size:12px; border-radius:8px; cursor:pointer;
+  .toggle button {
+    flex:1; background:none; border:none; padding:8px;
+
+
+font-size:12px; border-radius:8px; cursor:pointer;
     color:#64748b; font-weight:500;
   }
   .toggle button.active { background:#fff; color:#4f46e5; box-shadow:0 1px 4px rgba(0,0,0,0.08); }
@@ -214,7 +218,9 @@ const schedule = {
   4: [
     {time:'08:30ны', с name:'Физика', teacher:'Сидорова Е.Н.', room:'310', floor:'3 этаж'},
     {time:'09:25', name:'Литература', teacher:'Петров
-      С.В.', room:'118', floor:'1 этаж'},
+
+
+С.В.', room:'118', floor:'1 этаж'},
     {time:'10:25', name:'Алгебра', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
     {time:'11:20', name:'ОБЖ', teacher:'Орлов М.И.', room:'Спортзал', floor:'1 этаж'},
     {time:'12:20', name:'Английский', teacher:'Смирнова О.В.', room:'210', floor:'2 этаж'}
@@ -298,7 +304,10 @@ todayLessons.forEach(l => {
     </div>`;
 });
 
-const bellsList =document.getElementById('bellsList');
+const bellsList =
+
+
+document.getElementById('bellsList');
 const now = today.getHours()*60 + today.getMinutes();
 bells.forEach(b => {
   const [sh,sm] = b.start.split(':').map(Number);
@@ -419,5 +428,3 @@ setInterval(() => {
 </script>
 </body>
 </html>
-  .toggle button {
-    flex:1; background:none; border:none; padding:8px;
