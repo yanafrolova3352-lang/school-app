@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Школьный помощник</title>
+<title>Школьный помощник — 11 класс</title>
 <script src="https://st.max.ru/js/max-web-app.js"></script>
 <style>
   * { margin:0; padding:0; box-sizing:border-box; font-family:'Segoe UI',sans-serif; }
@@ -15,6 +15,19 @@
   }
   header h1 { font-size:20px; }
   header p { font-size:13px; opacity:0.9; margin-top:4px; }
+
+  /* Плашка «Сейчас идёт» */
+  .now-lesson {
+    background:linear-gradient(135deg,#10b981,#059669);
+    color:#fff; padding:14px 16px; border-radius:12px;
+    margin:16px; box-shadow:0 4px 12px rgba(16,185,129,0.3);
+    display:none;
+  }
+  .now-lesson.active { display:block; }
+  .now-lesson .label { font-size:11px; opacity:0.9; text-transform:uppercase; letter-spacing:1px; }
+  .now-lesson .title { font-size:18px; font-weight:700; margin:4px 0; }
+  .now-lesson .meta { font-size:12px; opacity:0.95; }
+
   .container { padding:16px; }
   .card {
     background:#fff; border-radius:14px; padding:16px;
@@ -29,25 +42,48 @@
     background:#eef2ff; color:#4f46e5; font-size:11px;
     padding:3px 8px; border-radius:10px; margin-left:auto;
   }
+
+  /* Переключатель дней */
+  .days {
+    display:flex; gap:4px; overflow-x:auto;
+    padding-bottom:4px; margin-bottom:12px;
+  }
+  .days button {
+    flex-shrink:0; background:#f1f5f9; border:none;
+    padding:8px 14px; border-radius:8px; font-size:12px;
+    color:#64748b; cursor:pointer; font-weight:600;
+    transition:0.2s;
+  }
+  .days button.active { background:#4f46e5; color:#fff; }
+
   .schedule-item {
     display:flex; align-items:center; padding:10px 0;
     border-bottom:1px solid #f1f5f9;
   }
   .schedule-item:last-child { border:none; }
-  .time { font-weight:600; color:#4f46e5; min-width:60px; font-size:14px; }
-  .info { flex:1; }
+  .num {
+    width:24px; height:24px; border-radius:6px;
+    background:#eef2ff; color:#4f46e5; font-size:12px;
+    display:flex; align-items:center; justify-content:center;
+    font-weight:700; margin-right:8px; flex-shrink:0;
+  }
+  .time { font-weight:600; color:#4f46e5; min-width:52px; font-size:13px; }
+  .info { flex:1; padding-left:8px; }
   .info .name { font-size:14px; font-weight:500; }
-  .info .meta { font-size:12px; color:#64748b; margin-top:2px; }
+  .info .meta { font-size:11px; color:#64748b; margin-top:2px; }
   .room {
     background:#fef3c7; color:#92400e; font-size:11px;
     padding:4px 8px; border-radius:8px; font-weight:600;
+    white-space:nowrap;
   }
+
   .bell {
     display:flex; justify-content:space-between;
     padding:8px 0; border-bottom:1px dashed #e2e8f0; font-size:13px;
   }
   .bell:last-child { border:none; }
   .bell.now { background:#dcfce7; padding:8px; border-radius:8px; font-weight:600; }
+
   .book {
     display:flex; gap:10px; padding:10px 0;
     border-bottom:1px solid #f1f5f9;
@@ -57,18 +93,19 @@
     width:40px; height:55px; border-radius:6px;
     background:linear-gradient(135deg,#818cf8,#c084fc);
     display:flex; align-items:center; justify-content:center;
-    color:#fff; font-size:18px;
+    color:#fff; font-size:18px; flex-shrink:0;
   }
   .book-info { flex:1; }
   .book-info .title { font-size:13px; font-weight:600; }
   .book-info .author { font-size:11px; color:#64748b; margin-top:2px; }
-  .book-info .actions { margin-top:6px; display:flex; gap:6px; }
+  .book-info .actions { margin-top:6px; display:flex; gap:6px; flex-wrap:wrap; }
   .btn-mini {
     background:#eef2ff; color:#4f46e5; border:none;
     padding:4px 10px; border-radius:6px; font-size:11px;
     cursor:pointer; font-weight:600;
   }
   .btn-mini:hover { background:#e0e7ff; }
+
   .notif {
     display:flex; gap:10px; padding:10px;
     background:#fffbeb; border-left:3px solid #f59e0b;
@@ -76,18 +113,31 @@
   }
   .notif.grade { background:#ecfdf5; border-color:#10b981; }
   .notif .icon { font-size:18px; }
+
   .menu-item {
     display:flex; justify-content:space-between;
     padding:8px 0; border-bottom:1px dashed #e2e8f0; font-size:13px;
   }
   .menu-item:last-child { border:none; }
   .price { color:#059669; font-weight:600; }
+
   .reminder {
     display:flex; align-items:center; gap:10px;
     padding:10px; background:#f0f9ff; border-radius:8px;
     margin-bottom:8px; font-size:13px;
   }
   .reminder .emoji { font-size:20px; }
+
+  /* Кнопка «Задать вопрос» */
+  .ask-btn {
+    display:block; width:100%; padding:14px;
+    background:linear-gradient(135deg,#4f46e5,#7c3aed);
+    color:#fff; border:none; border-radius:12px;
+    font-size:15px; font-weight:600; cursor:pointer;
+    margin-top:8px;
+  }
+  .ask-btn:active { transform:scale(0.98); }
+
   nav {
     position:fixed; bottom:0; left:0; right:0;
     background:#fff; display:flex; justify-content:space-around;
@@ -120,29 +170,35 @@
 
 <header>
   <h1>🎓 Школьный помощник</h1>
-  <p id="dateToday"></p>
+  <p>11 класс • Школа №4 • <span id="dateToday"></span></p>
 </header>
+
+<div class="now-lesson" id="nowLesson">
+  <div class="label">🔔 Сейчас идёт</div>
+  <div class="title" id="nowTitle"></div>
+  <div class="meta" id="nowMeta"></div>
+</div>
 
 <div class="container">
 
+  <!-- РАСПИСАНИЕ -->
   <div class="page active" id="page-home">
     <div class="card">
-      <h2>📚 Расписание уроков <span class="badge" id="dayBadge"></span></h2>
+      <h2>📚 Расписание уроков</h2>
+      <div class="days" id="daysSwitch"></div>
       <div id="lessonsList"></div>
     </div>
+
     <div class="card">
       <h2>🔔 Расписание звонков</h2>
       <div id="bellsList"></div>
     </div>
-    <div class="card">
-      <h2>🏃 Секции и кружки</h2>
-      <div id="clubsList"></div>
-    </div>
   </div>
 
+  <!-- БИБЛИОТЕКА -->
   <div class="page" id="page-library">
     <div class="card">
-      <h2>📖 Библиотека</h2>
+      <h2>📖 Библиотека 11 класса</h2>
       <div class="toggle">
         <button class="active" onclick="switchLib('books', this)">Произведения</button>
         <button onclick="switchLib('textbooks', this)">Учебники</button>
@@ -151,6 +207,7 @@
     </div>
   </div>
 
+  <!-- УВЕДОМЛЕНИЯ -->
   <div class="page" id="page-notif">
     <div class="card">
       <h2>🔔 Уведомления <span class="badge" id="notifCount"></span></h2>
@@ -158,20 +215,34 @@
     </div>
   </div>
 
+  <!-- СТОЛОВАЯ -->
   <div class="page" id="page-food">
     <div class="card">
       <h2>🍽 Меню на сегодня <span class="badge" id="foodDay"></span></h2>
       <div id="menuList"></div>
-      <p style="font-size:11px;color:#64748b;margin-top:12px;">* Меню обновляется ежедневно администрацией школы</p>
+      <p style="font-size:11px;color:#64748b;margin-top:12px;">* Меню обновляется ежедневно</p>
     </div>
   </div>
 
+  <!-- ЕЩЁ: напоминания + вопросы -->
   <div class="page" id="page-remind">
     <div class="card">
       <h2>⏰ Напоминания</h2>
       <div id="remindersList"></div>
-      <button class="btn-mini" style="margin-top:10px;padding:8px 16px;font-size:12px;" onclick="testNotify()">
-        🔔 Проверить уведомления
+    </div>
+
+    <div class="card">
+      <h2>💬 Задать вопрос</h2>
+      <p style="font-size:12px;color:#64748b;margin-bottom:10px;">
+        Нажми кнопку — откроется чат с ботом, где можно задать вопрос учителю или администрации.
+      </p>
+      <button class="ask-btn" onclick="askQuestion()">✉️ Написать вопрос</button>
+    </div>
+
+    <div class="card">
+      <h2>🔔 Проверить уведомления</h2>
+      <button class="btn-mini" style="padding:10px 16px;font-size:13px;" onclick="testNotify()">
+        Включить напоминания
       </button>
     </div>
   </div>
@@ -187,83 +258,124 @@
 </nav>
 
 <script>
-const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
-const today = new Date();
-const dayIndex = today.getDay();
+/* ============ УЧИТЕЛЯ ============ */
+const teachers = {
+  'Биология': 'Сироткина И.А.',
+  'Английский язык': 'Шарова Е.Л.',
+  'История': 'Беляева Д.В.',
+  'География': 'Кудрова О.М.',
+  'Алгебра': 'Хмылова О.В.',
+  'Литература': 'Замальдинова В.В.',
+  'Индивидуальный проект': 'Леднева Н.А.',
+  'Информатика': 'Филатова В.А.',
+  'Физкультура': 'Ушаков А.С.',
+  'Геометрия': 'Хмылова О.В.',
+  'Физика': 'Терёшкина А.В.',
+  'Обществознание': 'Беляева Д.В.',
+  'Химия': 'Андрейчик О.В.',
+  'Русский язык': 'Замальдинова В.В.',
+  'ОБЗР': 'Леднева Н.А.',
+  'Вероятность и статистика': 'Хмылова О.В.',
+  'Классный час': 'Леднева Н.А.'
+};
 
+/* ============ ЗВОНКИ (12 уроков) ============ */
+const bells = [
+  {n:'1 урок', start:'08:00', end:'08:40'},
+  {n:'2 урок', start:'09:00', end:'09:40'},
+  {n:'3 урок', start:'10:00', end:'10:40'},
+  {n:'4 урок', start:'11:00', end:'11:40'},
+  {n:'5 урок', start:'11:55', end:'12:35'},
+  {n:'6 урок', start:'12:45', end:'13:25'},
+  {n:'7 урок', start:'13:35', end:'14:15'},
+  {n:'8 урок', start:'14:35', end:'15:15'},
+  {n:'9 урок', start:'15:25', end:'16:05'},
+  {n:'10 урок', start:'16:15', end:'16:55'},
+  {n:'11 урок', start:'17:05', end:'17:45'},
+  {n:'12 урок', start:'17:55', end:'18:35'}
+];
+
+/* ============ РАСПИСАНИЕ 11 КЛАССА ============ */
 const schedule = {
-  1: [
-    {time:'08:30', name:'Математика', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
-    {time:'09:25', name:'Русский язык', teacher:'Петров С.В.', room:'118', floor:'1 этаж'},
-    {time:'10:25', name:'Физика', teacher:'Сидорова Е.Н.', room:'310', floor:'3 этаж'},
-    {time:'11:20', name:'История', teacher:'Кузнецов Д.А.', room:'205', floor:'2 этаж'},
-    {time:'12:20', name:'Физкультура', teacher:'Орлов М.И.', room:'Спортзал', floor:'1 этаж'}
+  1: [ // Понедельник
+    {name:'Классный час', room:'51'},
+    {name:'Биология', room:'46'},
+    {name:'Английский язык', room:'43'},
+    {name:'История', room:'47'},
+    {name:'География', room:'44'},
+    {name:'Алгебра', room:'52'},
+    {name:'Литература', room:'51'},
+    {name:'Индивидуальный проект', room:'23'}
   ],
-  2: [
-    {time:'08:30', name:'Литература', teacher:'Петров С.В.', room:'118', floor:'1 этаж'},
-    {time:'09:25', name:'Алгебра', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
-    {time:'10:25', name:'Химия', teacher:'Морозова Л.К.', room:'312', floor:'3 этаж'},
-    {time:'11:20', name:'Английский', teacher:'Смирнова О.В.', room:'210', floor:'2 этаж'},
-    {time:'12:20', name:'География', teacher:'Волков П.Р.', room:'207', floor:'2 этаж'}
+  2: [ // Вторник
+    {name:'—', room:''},
+    {name:'Информатика', room:'24'},
+    {name:'Физкультура', room:'Спортзал'},
+    {name:'История', room:'47'},
+    {name:'Геометрия', room:'52'},
+    {name:'Физика', room:'57'},
+    {name:'Обществознание', room:'47'}
   ],
-  3: [
-    {time:'08:30', name:'Геометрия', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
-    {time:'09:25', name:'Биология', teacher:'Морозова Л.К.', room:'312', floor:'3 этаж'},
-    {time:'10:25', name:'Русский язык', teacher:'Петров С.В.', room:'118', floor:'1 этаж'},
-    {time:'11:20', name:'Информатика', teacher:'Зайцев К.Н.', room:'401', floor:'4 этаж'},
-    {time:'12:20', name:'Обществознание', teacher:'Кузнецов Д.А.', room:'205', floor:'2 этаж'}
+  3: [ // Среда
+    {name:'Физкультура', room:'Спортзал'},
+    {name:'Литература', room:'51'},
+    {name:'Обществознание', room:'47'},
+    {name:'Английский язык', room:'43'},
+    {name:'Биология', room:'46'},
+    {name:'Химия', room:'58'},
+    {name:'Алгебра', room:'52'}
   ],
-  4: [
-    {time:'08:30', name:'Физика', teacher:'Сидорова Е.Н.', room:'310', floor:'3 этаж'},
-    {time:'09:25', name:'Литература', teacher:'Петров С.В.', room:'118', floor:'1 этаж'},
-    {time:'10:25', name:'Алгебра', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'},
-    {time:'11:20', name:'ОБЖ', teacher:'Орлов М.И.', room:'Спортзал', floor:'1 этаж'},
-    {time:'12:20', name:'Английский', teacher:'Смирнова О.В.', room:'210', floor:'2 этаж'}
+  4: [ // Четверг
+    {name:'Русский язык', room:'52'},
+    {name:'Английский язык', room:'43'},
+    {name:'ОБЗР', room:'23'},
+    {name:'История', room:'47'},
+    {name:'Алгебра', room:'52'},
+    {name:'Обществознание', room:'47'},
+    {name:'Литература', room:'51'},
+    {name:'Классный час', room:'51'}
   ],
-  5: [
-    {time:'08:30', name:'История', teacher:'Кузнецов Д.А.', room:'205', floor:'2 этаж'},
-    {time:'09:25', name:'Химия', teacher:'Морозова Л.К.', room:'312', floor:'3 этаж'},
-    {time:'10:25', name:'География', teacher:'Волков П.Р.', room:'207', floor:'2 этаж'},
-    {time:'11:20', name:'Физкультура', teacher:'Орлов М.И.', room:'Спортзал', floor:'1 этаж'},
-    {time:'12:20', name:'Классный час', teacher:'Иванова А.П.', room:'204', floor:'2 этаж'}
+  5: [ // Пятница
+    {name:'Вероятность и статистика', room:'52'},
+    {name:'Физкультура', room:'Спортзал'},
+    {name:'Русский язык', room:'51'},
+    {name:'История', room:'47'},
+    {name:'Биология', room:'46'},
+    {name:'Обществознание', room:'47'},
+    {name:'Физика', room:'57'}
   ]
 };
 
-const bells = [
-  {n:'1 урок', start:'08:30', end:'09:15'},
-  {n:'2 урок', start:'09:25', end:'10:10'},
-  {n:'3 урок', start:'10:25', end:'11:10'},
-  {n:'4 урок', start:'11:20', end:'12:05'},
-  {n:'5 урок', start:'12:20', end:'13:05'},
-  {n:'6 урок', start:'13:15', end:'14:00'}
-];
-
-const clubs = [
-  {day:'Пн', name:'Баскетбол', time:'15:00', place:'Спортзал'},
-  {day:'Вт', name:'Робототехника', time:'15:30', place:'Каб. 401'},
-  {day:'Ср', name:'Хор', time:'16:00', place:'Актовый зал'},
-  {day:'Чт', name:'Шахматы', time:'15:00', place:'Каб. 208'},
-  {day:'Пт', name:'Плавание', time:'16:30', place:'Бассейн'}
-];
-
+/* ============ БИБЛИОТЕКА ============ */
 const books = [
   {title:'Война и мир', author:'Л.Н. Толстой', type:'books', icon:'📕'},
-  {title:'Преступление и наказание', author:'Ф.М. Достоевский', type:'books', icon:'📗'},
-  {title:'Мастер и Маргарита', author:'М.А. Булгаков', type:'books', icon:'📘'},
-  {title:'Евгений Онегин', author:'А.С. Пушкин', type:'books', icon:'📙'},
-  {title:'Учебник алгебры 9кл', author:'Макарычев Ю.Н.', type:'textbooks', icon:'📐'},
-  {title:'Учебник физики 9кл', author:'Перышкин А.В.', type:'textbooks', icon:'⚛️'},
-  {title:'Учебник истории 9кл', author:'Юдовская А.Я.', type:'textbooks', icon:'🏛'},
-  {title:'Учебник химии 9кл', author:'Габриелян О.С.', type:'textbooks', icon:'🧪'}
+  {title:'На дне', author:'М. Горький', type:'books', icon:'📗'},
+  {title:'Олеся', author:'А.И. Куприн', type:'books', icon:'📘'},
+  {title:'Преступление и наказание', author:'Ф.М. Достоевский', type:'books', icon:'📙'},
+  {title:'Капитанская дочка', author:'А.С. Пушкин', type:'books', icon:'📔'},
+  {title:'Алгебра и начала анализа 11кл', author:'Колмогоров А.Н.', type:'textbooks', icon:'📐'},
+  {title:'Геометрия 11кл', author:'Атанасян Л.С.', type:'textbooks', icon:'📏'},
+  {title:'Физика 11кл', author:'Мякишев Г.Я.', type:'textbooks', icon:'⚛️'},
+  {title:'Химия 11кл', author:'Габриелян О.С.', type:'textbooks', icon:'🧪'},
+  {title:'Биология 11кл', author:'Сивоглазов В.И.', type:'textbooks', icon:'🌱'},
+  {title:'История России 11кл', author:'Волобуев О.В.', type:'textbooks', icon:'🏛'},
+  {title:'Обществознание 11кл', author:'Боголюбов Л.Н.', type:'textbooks', icon:'⚖️'},
+  {title:'Русский язык 11кл', author:'Власенков А.И.', type:'textbooks', icon:'📝'},
+  {title:'Литература 11кл', author:'Журавлёв В.П.', type:'textbooks', icon:'📖'},
+  {title:'Английский язык 11кл', author:'Афанасьева О.В.', type:'textbooks', icon:'🇬🇧'},
+  {title:'Информатика 11кл', author:'Семакин И.Г.', type:'textbooks', icon:'💻'}
 ];
 
+/* ============ УВЕДОМЛЕНИЯ ============ */
 const notifications = [
-  {icon:'⚠️', text:'Изменение в расписании: физика перенесена в каб. 305 (3 этаж)', type:'warn'},
-  {icon:'📝', text:'Новая оценка: Математика — 5 (контрольная работа)', type:'grade'},
-  {icon:'⚠️', text:'Замена: вместо истории будет география, каб. 207', type:'warn'},
-  {icon:'📝', text:'Новая оценка: Литература — 4 (сочинение)', type:'grade'}
+  {icon:'⚠️', text:'Изменение в расписании: физика перенесена в каб. 305', type:'warn'},
+  {icon:'📝', text:'Новая оценка: Алгебра — 5 (контрольная)', type:'grade'},
+  {icon:'⚠️', text:'Замена: вместо истории будет география, каб. 44', type:'warn'},
+  {icon:'📝', text:'Новая оценка: Литература — 4 (сочинение)', type:'grade'},
+  {icon:'📅', text:'Напоминание: 25 сентября — родительское собрание', type:'warn'}
 ];
 
+/* ============ СТОЛОВАЯ ============ */
 const menu = {
   1: [{name:'Каша рисовая с маслом', price:'45₽'}, {name:'Чай с лимоном', price:'20₽'}, {name:'Булочка', price:'30₽'}],
   2: [{name:'Суп куриный с лапшой', price:'60₽'}, {name:'Котлета с пюре', price:'85₽'}, {name:'Компот', price:'25₽'}],
@@ -272,40 +384,123 @@ const menu = {
   5: [{name:'Плов с курицей', price:'90₽'}, {name:'Овощная нарезка', price:'35₽'}, {name:'Морс клюквенный', price:'30₽'}]
 };
 
+/* ============ НАПОМИНАНИЯ ============ */
 const reminders = [
   {emoji:'💧', text:'Перерыв на воду — выпей стакан воды'},
-  {emoji:'🍎', text:'Перекус: яблоко / батончик (11:15)'},
+  {emoji:'🍎', text:'Перекус: яблоко / батончик (11:40)'},
   {emoji:'🧘', text:'5-минутная разминка для глаз и спины'},
-  {emoji:'🍽', text:'Обед в столовой: 13:10–13:45'},
+  {emoji:'🍽', text:'Обед в столовой: 13:25–13:35'},
   {emoji:'😴', text:'Отдых после уроков: 30 мин без телефона'}
 ];
 
-document.getElementById('dateToday').textContent = 
-  `${days[dayIndex]}, ${today.toLocaleDateString('ru-RU')}`;
-document.getElementById('dayBadge').textContent = days[dayIndex];
-document.getElementById('foodDay').textContent = days[dayIndex];
+/* ============ ОТОБРАЖЕНИЕ ============ */
+const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
+const daysShort = ['Пн','Вт','Ср','Чт','Пт'];
+const today = new Date();
+const todayIdx = today.getDay();
 
-const lessonsList = document.getElementById('lessonsList');
-const todayLessons = schedule[dayIndex] || schedule[1];
-todayLessons.forEach(l => {
-  lessonsList.innerHTML += `
-    <div class="schedule-item">
-      <div class="time">${l.time}</div>
-      <div class="info">
-        <div class="name">${l.name}</div>
-        <div class="meta">${l.teacher} • ${l.floor}</div>
-      </div>
-      <div class="room">каб. ${l.room}</div>
-    </div>`;
+document.getElementById('dateToday').textContent = 
+  `${days[todayIdx]}, ${today.toLocaleDateString('ru-RU')}`;
+document.getElementById('foodDay').textContent = days[todayIdx];
+
+// Текущий день (по умолчанию — сегодня или понедельник)
+let currentDay = (todayIdx >= 1 && todayIdx <= 5) ? todayIdx : 1;
+
+// Переключатель дней
+const daysSwitch = document.getElementById('daysSwitch');
+[1,2,3,4,5].forEach(d => {
+  const btn = document.createElement('button');
+  btn.textContent = days[d];
+  if (d === currentDay) btn.classList.add('active');
+  btn.onclick = () => {
+    currentDay = d;
+    document.querySelectorAll('#daysSwitch button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderLessons(d);
+  };
+  daysSwitch.appendChild(btn);
 });
 
+// Функция отрисовки уроков
+function renderLessons(day) {
+  const list = document.getElementById('lessonsList');
+  list.innerHTML = '';
+  const lessons = schedule[day] || [];
+  lessons.forEach((l, i) => {
+    if (l.name === '—') {
+      list.innerHTML += `
+        <div class="schedule-item" style="opacity:0.4;">
+          <div class="num">${i+1}</div>
+          <div class="time">${bells[i].start}</div>
+          <div class="info"><div class="name">— нет урока —</div></div>
+        </div>`;
+      return;
+    }
+    const teacher = teachers[l.name] || '';
+    const bell = bells[i] || {start:'', end:''};
+    list.innerHTML += `
+      <div class="schedule-item">
+        <div class="num">${i+1}</div>
+        <div class="time">${bell.start}</div>
+        <div class="info">
+          <div class="name">${l.name}</div>
+          <div class="meta">${teacher} • до ${bell.end}</div>
+        </div>
+        <div class="room">${l.room ? 'каб. ' + l.room : ''}</div>
+      </div>`;
+  });
+}
+renderLessons(currentDay);
+
+// Плашка «Сейчас идёт»
+function updateNow() {
+  const n = new Date();
+  const mins = n.getHours()*60 + n.getMinutes();
+  const day = n.getDay();
+  if (day < 1 || day > 5) {
+    document.getElementById('nowLesson').classList.remove('active');
+    return;
+  }
+  const lessons = schedule[day] || [];
+  for (let i = 0; i < lessons.length; i++) {
+    if (lessons[i].name === '—') continue;
+    const [sh,sm] = bells[i].start.split(':').map(Number);
+    const [eh,em] = bells[i].end.split(':').map(Number);
+    const s = sh*60+sm, e = eh*60+em;
+    if (mins >= s && mins <= e) {
+      document.getElementById('nowLesson').classList.add('active');
+      document.getElementById('nowTitle').textContent = lessons[i].name;
+      document.getElementById('nowMeta').textContent = 
+        `${teachers[lessons[i].name] || ''} • каб. ${lessons[i].room} • до ${bells[i].end}`;
+      return;
+    }
+  }
+  // Если урок не идёт — показываем следующий
+  for (let i = 0; i < lessons.length; i++) {
+    if (lessons[i].name === '—') continue;
+    const [sh,sm] = bells[i].start.split(':').map(Number);
+    const s = sh*60+sm;
+    if (mins < s) {
+      document.getElementById('nowLesson').classList.add('active');
+      document.getElementById('nowTitle').textContent = 'Скоро: ' + lessons[i].name;
+      document.getElementById('nowMeta').textContent = 
+        `Начнётся в ${bells[i].start} • каб. ${lessons[i].room}`;
+      return;
+    }
+  }
+  document.getElementById('nowLesson').classList.remove('active');
+}
+updateNow();
+setInterval(updateNow, 30000);
+
+// Звонки
 const bellsList = document.getElementById('bellsList');
-const now = today.getHours()*60 + today.getMinutes();
+const nowMins = today.getHours()*60 + today.getMinutes();
 bells.forEach(b => {
   const [sh,sm] = b.start.split(':').map(Number);
   const [eh,em] = b.end.split(':').map(Number);
   const s = sh*60+sm, e = eh*60+em;
-  const isNow = now >= s && now <= e;
+  const isNow = nowMins >= s && nowMins <= e && todayIdx >= 1 && todayIdx <= 5;
   bellsList.innerHTML += `
     <div class="bell ${isNow?'now':''}">
       <span>${b.n}</span>
@@ -313,20 +508,7 @@ bells.forEach(b => {
     </div>`;
 });
 
-const clubsList = document.getElementById('clubsList');
-clubs.forEach(c => {
-  const isToday = (c.day === ['Вс','Пн','Вт','Ср','Чт','Пт','Сб'][dayIndex]);
-  clubsList.innerHTML += `
-    <div class="schedule-item">
-      <div class="time">${c.day} ${c.time}</div>
-      <div class="info">
-        <div class="name">${c.name}</div>
-        <div class="meta">${c.place}</div>
-      </div>
-      ${isToday?'<div class="room" style="background:#dcfce7;color:#065f46;">сегодня</div>':''}
-    </div>`;
-});
-
+// Библиотека
 let libFilter = 'books';
 function renderLibrary() {
   const lib = document.getElementById('libraryList');
@@ -339,8 +521,8 @@ function renderLibrary() {
           <div class="title">${b.title}</div>
           <div class="author">${b.author}</div>
           <div class="actions">
-            <button class="btn-mini" onclick="alert('Открываю: ${b.title}')">Читать</button>
-            <button class="btn-mini" onclick="alert('Добавлено в закладки')">★ В закладки</button>
+            <button class="btn-mini" onclick="openBook('${b.title}')">📖 Читать</button>
+            <button class="btn-mini" onclick="alert('Добавлено в закладки: ${b.title}')">★</button>
           </div>
         </div>
       </div>`;
@@ -352,8 +534,12 @@ function switchLib(type, btn) {
   btn.classList.add('active');
   renderLibrary();
 }
+function openBook(title) {
+  alert('📖 Открываю: ' + title + '\\n\\n(Здесь можно вставить ссылку на PDF или онлайн-библиотеку)');
+}
 renderLibrary();
 
+// Уведомления
 const notifList = document.getElementById('notifList');
 document.getElementById('notifCount').textContent = notifications.length;
 notifications.forEach(n => {
@@ -364,8 +550,9 @@ notifications.forEach(n => {
     </div>`;
 });
 
+// Столовая
 const menuList = document.getElementById('menuList');
-const todayMenu = menu[dayIndex] || menu[1];
+const todayMenu = menu[todayIdx] || menu[1];
 todayMenu.forEach(m => {
   menuList.innerHTML += `
     <div class="menu-item">
@@ -374,6 +561,7 @@ todayMenu.forEach(m => {
     </div>`;
 });
 
+// Напоминания
 const remindersList = document.getElementById('remindersList');
 reminders.forEach(r => {
   remindersList.innerHTML += `
@@ -383,6 +571,7 @@ reminders.forEach(r => {
     </div>`;
 });
 
+// Навигация
 function showPage(page, btn) {
   document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
   document.getElementById('page-' + page).classList.add('active');
@@ -391,6 +580,17 @@ function showPage(page, btn) {
   window.scrollTo(0,0);
 }
 
+// Задать вопрос
+function askQuestion() {
+  if (window.WebApp && window.WebApp.openLink) {
+    // Ссылка на чат с ботом
+    window.WebApp.openLink('https://max.ru/se14409668_bot');
+  } else {
+    alert('💬 Напишите свой вопрос боту в MAX: @se14409668_bot');
+  }
+}
+
+// Уведомления браузера
 function testNotify() {
   if (!('Notification' in window)) {
     alert('Браузер не поддерживает уведомления');
@@ -399,7 +599,7 @@ function testNotify() {
   Notification.requestPermission().then(perm => {
     if (perm === 'granted') {
       new Notification('🎓 Школьный помощник', {
-        body: 'Напоминание: перерыв на обед в 13:10 🍽'
+        body: 'Уведомления включены! Буду напоминать про уроки.'
       });
     } else {
       alert('Разрешите уведомления в настройках браузера');
@@ -407,16 +607,33 @@ function testNotify() {
   });
 }
 
+// Автонапоминание «Сейчас идёт урок» каждые 5 минут
 setInterval(() => {
+  if (Notification.permission !== 'granted') return;
   const n = new Date();
   const mins = n.getHours()*60 + n.getMinutes();
-  if (mins === 13*60+10 && Notification.permission === 'granted') {
-    new Notification('🍽 Время обеда!', { body: 'Спускайся в столовую на 1 этаж' });
-  }
-  if (mins === 11*60+15 && Notification.permission === 'granted') {
-    new Notification('🍎 Перекус', { body: 'Сделай перерыв и перекуси' });
+  const day = n.getDay();
+  if (day < 1 || day > 5) return;
+  const lessons = schedule[day] || [];
+  for (let i = 0; i < lessons.length; i++) {
+    if (lessons[i].name === '—') continue;
+    const [sh,sm] = bells[i].start.split(':').map(Number);
+    if (mins === sh*60+sm) {
+      new Notification('🔔 Начался урок', {
+        body: `${lessons[i].name} — каб. ${lessons[i].room}`
+      });
+      break;
+    }
   }
 }, 60000);
+
+// Приветствие из MAX
+if (window.WebApp && window.WebApp.initDataUnsafe) {
+  const user = window.WebApp.initDataUnsafe.user;
+  if (user && user.first_name) {
+    document.querySelector('header h1').textContent = '🎓 Привет, ' + user.first_name + '!';
+  }
+}
 </script>
 </body>
 </html>
