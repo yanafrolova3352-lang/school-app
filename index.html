@@ -15,8 +15,6 @@
   }
   header h1 { font-size:20px; }
   header p { font-size:13px; opacity:0.9; margin-top:4px; }
-
-  /* Плашка «Сейчас идёт» */
   .now-lesson {
     background:linear-gradient(135deg,#10b981,#059669);
     color:#fff; padding:14px 16px; border-radius:12px;
@@ -27,7 +25,6 @@
   .now-lesson .label { font-size:11px; opacity:0.9; text-transform:uppercase; letter-spacing:1px; }
   .now-lesson .title { font-size:18px; font-weight:700; margin:4px 0; }
   .now-lesson .meta { font-size:12px; opacity:0.95; }
-
   .container { padding:16px; }
   .card {
     background:#fff; border-radius:14px; padding:16px;
@@ -42,8 +39,6 @@
     background:#eef2ff; color:#4f46e5; font-size:11px;
     padding:3px 8px; border-radius:10px; margin-left:auto;
   }
-
-  /* Переключатель дней */
   .days {
     display:flex; gap:4px; overflow-x:auto;
     padding-bottom:4px; margin-bottom:12px;
@@ -52,10 +47,8 @@
     flex-shrink:0; background:#f1f5f9; border:none;
     padding:8px 14px; border-radius:8px; font-size:12px;
     color:#64748b; cursor:pointer; font-weight:600;
-    transition:0.2s;
   }
   .days button.active { background:#4f46e5; color:#fff; }
-
   .schedule-item {
     display:flex; align-items:center; padding:10px 0;
     border-bottom:1px solid #f1f5f9;
@@ -76,14 +69,12 @@
     padding:4px 8px; border-radius:8px; font-weight:600;
     white-space:nowrap;
   }
-
   .bell {
     display:flex; justify-content:space-between;
     padding:8px 0; border-bottom:1px dashed #e2e8f0; font-size:13px;
   }
   .bell:last-child { border:none; }
   .bell.now { background:#dcfce7; padding:8px; border-radius:8px; font-weight:600; }
-
   .book {
     display:flex; gap:10px; padding:10px 0;
     border-bottom:1px solid #f1f5f9;
@@ -105,7 +96,6 @@
     cursor:pointer; font-weight:600;
   }
   .btn-mini:hover { background:#e0e7ff; }
-
   .notif {
     display:flex; gap:10px; padding:10px;
     background:#fffbeb; border-left:3px solid #f59e0b;
@@ -113,14 +103,12 @@
   }
   .notif.grade { background:#ecfdf5; border-color:#10b981; }
   .notif .icon { font-size:18px; }
-
   .menu-item {
     display:flex; justify-content:space-between;
     padding:8px 0; border-bottom:1px dashed #e2e8f0; font-size:13px;
   }
   .menu-item:last-child { border:none; }
   .price { color:#059669; font-weight:600; }
-
   .reminder {
     display:flex; align-items:center; gap:10px;
     padding:10px; background:#f0f9ff; border-radius:8px;
@@ -128,15 +116,47 @@
   }
   .reminder .emoji { font-size:20px; }
 
-  /* Кнопка «Задать вопрос» */
-  .ask-btn {
-    display:block; width:100%; padding:14px;
-    background:linear-gradient(135deg,#4f46e5,#7c3aed);
-    color:#fff; border:none; border-radius:12px;
-    font-size:15px; font-weight:600; cursor:pointer;
-    margin-top:8px;
+  /* Чат помощника */
+  .chat-box {
+    background:#f8fafc; border-radius:12px;
+    padding:12px; height:340px; overflow-y:auto;
+    margin-bottom:10px; display:flex; flex-direction:column; gap:8px;
   }
-  .ask-btn:active { transform:scale(0.98); }
+  .msg {
+    max-width:80%; padding:10px 12px; border-radius:12px;
+    font-size:13px; line-height:1.4; word-wrap:break-word;
+  }
+  .msg.user {
+    background:#4f46e5; color:#fff;
+    align-self:flex-end; border-bottom-right-radius:4px;
+  }
+  .msg.bot {
+    background:#fff; color:#1e293b;
+    align-self:flex-start; border-bottom-left-radius:4px;
+    box-shadow:0 1px 3px rgba(0,0,0,0.08);
+  }
+  .chat-input {
+    display:flex; gap:6px;
+  }
+  .chat-input input {
+    flex:1; padding:12px 14px; border:1px solid #e2e8f0;
+    border-radius:10px; font-size:14px; outline:none;
+  }
+  .chat-input input:focus { border-color:#4f46e5; }
+  .chat-input button {
+    background:#4f46e5; color:#fff; border:none;
+    padding:0 18px; border-radius:10px; font-size:18px;
+    cursor:pointer; font-weight:600;
+  }
+  .quick-btns {
+    display:flex; flex-wrap:wrap; gap:6px; margin-top:10px;
+  }
+  .quick-btns button {
+    background:#eef2ff; color:#4f46e5; border:none;
+    padding:6px 12px; border-radius:8px; font-size:11px;
+    cursor:pointer; font-weight:600;
+  }
+  .quick-btns button:hover { background:#e0e7ff; }
 
   nav {
     position:fixed; bottom:0; left:0; right:0;
@@ -148,7 +168,7 @@
     background:none; border:none; font-size:11px;
     color:#94a3b8; display:flex; flex-direction:column;
     align-items:center; gap:3px; cursor:pointer;
-    padding:4px 12px; border-radius:8px; transition:0.2s;
+    padding:4px 10px; border-radius:8px; transition:0.2s;
   }
   nav button.active { color:#4f46e5; background:#eef2ff; }
   nav button .ico { font-size:20px; }
@@ -181,21 +201,18 @@
 
 <div class="container">
 
-  <!-- РАСПИСАНИЕ -->
   <div class="page active" id="page-home">
     <div class="card">
       <h2>📚 Расписание уроков</h2>
       <div class="days" id="daysSwitch"></div>
       <div id="lessonsList"></div>
     </div>
-
     <div class="card">
       <h2>🔔 Расписание звонков</h2>
       <div id="bellsList"></div>
     </div>
   </div>
 
-  <!-- БИБЛИОТЕКА -->
   <div class="page" id="page-library">
     <div class="card">
       <h2>📖 Библиотека 11 класса</h2>
@@ -207,7 +224,26 @@
     </div>
   </div>
 
-  <!-- УВЕДОМЛЕНИЯ -->
+  <div class="page" id="page-chat">
+    <div class="card">
+      <h2>💬 Помощник</h2>
+      <div class="chat-box" id="chatBox">
+        <div class="msg bot">Привет! 👋 Я школьный помощник. Спроси меня про расписание, звонки, столовую, учителей или библиотеку.</div>
+      </div>
+      <div class="chat-input">
+        <input type="text" id="chatInput" placeholder="Напиши вопрос..." onkeypress="if(event.key==='Enter') sendMsg()">
+        <button onclick="sendMsg()">➤</button>
+      </div>
+      <div class="quick-btns">
+        <button onclick="quickAsk('расписание на завтра')">📅 На завтра</button>
+        <button onclick="quickAsk('какой сейчас урок')">🔔 Сейчас</button>
+        <button onclick="quickAsk('меню столовой')">🍽 Столовая</button>
+        <button onclick="quickAsk('учителя')">👩‍🏫 Учителя</button>
+        <button onclick="quickAsk('что ты умеешь')">❓ Помощь</button>
+      </div>
+    </div>
+  </div>
+
   <div class="page" id="page-notif">
     <div class="card">
       <h2>🔔 Уведомления <span class="badge" id="notifCount"></span></h2>
@@ -215,7 +251,6 @@
     </div>
   </div>
 
-  <!-- СТОЛОВАЯ -->
   <div class="page" id="page-food">
     <div class="card">
       <h2>🍽 Меню на сегодня <span class="badge" id="foodDay"></span></h2>
@@ -224,21 +259,11 @@
     </div>
   </div>
 
-  <!-- ЕЩЁ: напоминания + вопросы -->
   <div class="page" id="page-remind">
     <div class="card">
       <h2>⏰ Напоминания</h2>
       <div id="remindersList"></div>
     </div>
-
-    <div class="card">
-      <h2>💬 Задать вопрос</h2>
-      <p style="font-size:12px;color:#64748b;margin-bottom:10px;">
-        Нажми кнопку — откроется чат с ботом, где можно задать вопрос учителю или администрации.
-      </p>
-      <button class="ask-btn" onclick="askQuestion()">✉️ Написать вопрос</button>
-    </div>
-
     <div class="card">
       <h2>🔔 Проверить уведомления</h2>
       <button class="btn-mini" style="padding:10px 16px;font-size:13px;" onclick="testNotify()">
@@ -252,9 +277,9 @@
 <nav>
   <button class="active" onclick="showPage('home', this)"><span class="ico">📅</span>Расписание</button>
   <button onclick="showPage('library', this)"><span class="ico">📖</span>Библиотека</button>
+  <button onclick="showPage('chat', this)"><span class="ico">💬</span>Помощник</button>
   <button onclick="showPage('notif', this)"><span class="ico">🔔</span>Уведомления</button>
   <button onclick="showPage('food', this)"><span class="ico">🍽</span>Столовая</button>
-  <button onclick="showPage('remind', this)"><span class="ico">⏰</span>Ещё</button>
 </nav>
 
 <script>
@@ -279,7 +304,6 @@ const teachers = {
   'Классный час': 'Леднева Н.А.'
 };
 
-/* ============ ЗВОНКИ (12 уроков) ============ */
 const bells = [
   {n:'1 урок', start:'08:00', end:'08:40'},
   {n:'2 урок', start:'09:00', end:'09:40'},
@@ -295,58 +319,39 @@ const bells = [
   {n:'12 урок', start:'17:55', end:'18:35'}
 ];
 
-/* ============ РАСПИСАНИЕ 11 КЛАССА ============ */
 const schedule = {
-  1: [ // Понедельник
-    {name:'Классный час', room:'51'},
-    {name:'Биология', room:'46'},
-    {name:'Английский язык', room:'43'},
-    {name:'История', room:'47'},
-    {name:'География', room:'44'},
-    {name:'Алгебра', room:'52'},
-    {name:'Литература', room:'51'},
-    {name:'Индивидуальный проект', room:'23'}
+  1: [
+    {name:'Классный час', room:'51'}, {name:'Биология', room:'46'},
+    {name:'Английский язык', room:'43'}, {name:'История', room:'47'},
+    {name:'География', room:'44'}, {name:'Алгебра', room:'52'},
+    {name:'Литература', room:'51'}, {name:'Индивидуальный проект', room:'23'}
   ],
-  2: [ // Вторник
-    {name:'—', room:''},
-    {name:'Информатика', room:'24'},
-    {name:'Физкультура', room:'Спортзал'},
-    {name:'История', room:'47'},
-    {name:'Геометрия', room:'52'},
-    {name:'Физика', room:'57'},
+  2: [
+    {name:'—', room:''}, {name:'Информатика', room:'24'},
+    {name:'Физкультура', room:'Спортзал'}, {name:'История', room:'47'},
+    {name:'Геометрия', room:'52'}, {name:'Физика', room:'57'},
     {name:'Обществознание', room:'47'}
   ],
-  3: [ // Среда
-    {name:'Физкультура', room:'Спортзал'},
-    {name:'Литература', room:'51'},
-    {name:'Обществознание', room:'47'},
-    {name:'Английский язык', room:'43'},
-    {name:'Биология', room:'46'},
-    {name:'Химия', room:'58'},
+  3: [
+    {name:'Физкультура', room:'Спортзал'}, {name:'Литература', room:'51'},
+    {name:'Обществознание', room:'47'}, {name:'Английский язык', room:'43'},
+    {name:'Биология', room:'46'}, {name:'Химия', room:'58'},
     {name:'Алгебра', room:'52'}
   ],
-  4: [ // Четверг
-    {name:'Русский язык', room:'52'},
-    {name:'Английский язык', room:'43'},
-    {name:'ОБЗР', room:'23'},
-    {name:'История', room:'47'},
-    {name:'Алгебра', room:'52'},
-    {name:'Обществознание', room:'47'},
-    {name:'Литература', room:'51'},
-    {name:'Классный час', room:'51'}
+  4: [
+    {name:'Русский язык', room:'52'}, {name:'Английский язык', room:'43'},
+    {name:'ОБЗР', room:'23'}, {name:'История', room:'47'},
+    {name:'Алгебра', room:'52'}, {name:'Обществознание', room:'47'},
+    {name:'Литература', room:'51'}, {name:'Классный час', room:'51'}
   ],
-  5: [ // Пятница
-    {name:'Вероятность и статистика', room:'52'},
-    {name:'Физкультура', room:'Спортзал'},
-    {name:'Русский язык', room:'51'},
-    {name:'История', room:'47'},
-    {name:'Биология', room:'46'},
-    {name:'Обществознание', room:'47'},
+  5: [
+    {name:'Вероятность и статистика', room:'52'}, {name:'Физкультура', room:'Спортзал'},
+    {name:'Русский язык', room:'51'}, {name:'История', room:'47'},
+    {name:'Биология', room:'46'}, {name:'Обществознание', room:'47'},
     {name:'Физика', room:'57'}
   ]
 };
 
-/* ============ БИБЛИОТЕКА ============ */
 const books = [
   {title:'Война и мир', author:'Л.Н. Толстой', type:'books', icon:'📕'},
   {title:'На дне', author:'М. Горький', type:'books', icon:'📗'},
@@ -366,25 +371,21 @@ const books = [
   {title:'Информатика 11кл', author:'Семакин И.Г.', type:'textbooks', icon:'💻'}
 ];
 
-/* ============ УВЕДОМЛЕНИЯ ============ */
 const notifications = [
   {icon:'⚠️', text:'Изменение в расписании: физика перенесена в каб. 305', type:'warn'},
   {icon:'📝', text:'Новая оценка: Алгебра — 5 (контрольная)', type:'grade'},
   {icon:'⚠️', text:'Замена: вместо истории будет география, каб. 44', type:'warn'},
-  {icon:'📝', text:'Новая оценка: Литература — 4 (сочинение)', type:'grade'},
-  {icon:'📅', text:'Напоминание: 25 сентября — родительское собрание', type:'warn'}
+  {icon:'📝', text:'Новая оценка: Литература — 4 (сочинение)', type:'grade'}
 ];
 
-/* ============ СТОЛОВАЯ ============ */
 const menu = {
   1: [{name:'Каша рисовая с маслом', price:'45₽'}, {name:'Чай с лимоном', price:'20₽'}, {name:'Булочка', price:'30₽'}],
   2: [{name:'Суп куриный с лапшой', price:'60₽'}, {name:'Котлета с пюре', price:'85₽'}, {name:'Компот', price:'25₽'}],
   3: [{name:'Макароны с сыром', price:'70₽'}, {name:'Салат овощной', price:'40₽'}, {name:'Сок яблочный', price:'35₽'}],
   4: [{name:'Борщ со сметаной', price:'65₽'}, {name:'Рыба запечённая с рисом', price:'95₽'}, {name:'Кисель', price:'20₽'}],
-  5: [{name:'Плов с курицей', price:'90₽'}, {name:'Овощная нарезка', price:'35₽'}, {name:'Морс клюквенный', price:'30₽'}]
+  5: [{name:'Плов с курицей', price:'90₽'}, {name:'Овощной салат', price:'35₽'}, {name:'Морс клюквенный', price:'30₽'}]
 };
 
-/* ============ НАПОМИНАНИЯ ============ */
 const reminders = [
   {emoji:'💧', text:'Перерыв на воду — выпей стакан воды'},
   {emoji:'🍎', text:'Перекус: яблоко / батончик (11:40)'},
@@ -395,7 +396,6 @@ const reminders = [
 
 /* ============ ОТОБРАЖЕНИЕ ============ */
 const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
-const daysShort = ['Пн','Вт','Ср','Чт','Пт'];
 const today = new Date();
 const todayIdx = today.getDay();
 
@@ -403,10 +403,8 @@ document.getElementById('dateToday').textContent =
   `${days[todayIdx]}, ${today.toLocaleDateString('ru-RU')}`;
 document.getElementById('foodDay').textContent = days[todayIdx];
 
-// Текущий день (по умолчанию — сегодня или понедельник)
 let currentDay = (todayIdx >= 1 && todayIdx <= 5) ? todayIdx : 1;
 
-// Переключатель дней
 const daysSwitch = document.getElementById('daysSwitch');
 [1,2,3,4,5].forEach(d => {
   const btn = document.createElement('button');
@@ -421,7 +419,6 @@ const daysSwitch = document.getElementById('daysSwitch');
   daysSwitch.appendChild(btn);
 });
 
-// Функция отрисовки уроков
 function renderLessons(day) {
   const list = document.getElementById('lessonsList');
   list.innerHTML = '';
@@ -446,13 +443,12 @@ function renderLessons(day) {
           <div class="name">${l.name}</div>
           <div class="meta">${teacher} • до ${bell.end}</div>
         </div>
-        <div class="room">${l.room ? 'каб. ' + l.room : ''}</div>
+        <div class="room">каб. ${l.room}</div>
       </div>`;
   });
 }
 renderLessons(currentDay);
 
-// Плашка «Сейчас идёт»
 function updateNow() {
   const n = new Date();
   const mins = n.getHours()*60 + n.getMinutes();
@@ -466,8 +462,7 @@ function updateNow() {
     if (lessons[i].name === '—') continue;
     const [sh,sm] = bells[i].start.split(':').map(Number);
     const [eh,em] = bells[i].end.split(':').map(Number);
-    const s = sh*60+sm, e = eh*60+em;
-    if (mins >= s && mins <= e) {
+    if (mins >= sh*60+sm && mins <= eh*60+em) {
       document.getElementById('nowLesson').classList.add('active');
       document.getElementById('nowTitle').textContent = lessons[i].name;
       document.getElementById('nowMeta').textContent = 
@@ -475,12 +470,10 @@ function updateNow() {
       return;
     }
   }
-  // Если урок не идёт — показываем следующий
   for (let i = 0; i < lessons.length; i++) {
     if (lessons[i].name === '—') continue;
     const [sh,sm] = bells[i].start.split(':').map(Number);
-    const s = sh*60+sm;
-    if (mins < s) {
+    if (mins < sh*60+sm) {
       document.getElementById('nowLesson').classList.add('active');
       document.getElementById('nowTitle').textContent = 'Скоро: ' + lessons[i].name;
       document.getElementById('nowMeta').textContent = 
@@ -493,14 +486,12 @@ function updateNow() {
 updateNow();
 setInterval(updateNow, 30000);
 
-// Звонки
 const bellsList = document.getElementById('bellsList');
 const nowMins = today.getHours()*60 + today.getMinutes();
 bells.forEach(b => {
   const [sh,sm] = b.start.split(':').map(Number);
   const [eh,em] = b.end.split(':').map(Number);
-  const s = sh*60+sm, e = eh*60+em;
-  const isNow = nowMins >= s && nowMins <= e && todayIdx >= 1 && todayIdx <= 5;
+  const isNow = nowMins >= sh*60+sm && nowMins <= eh*60+em && todayIdx >= 1 && todayIdx <= 5;
   bellsList.innerHTML += `
     <div class="bell ${isNow?'now':''}">
       <span>${b.n}</span>
@@ -508,7 +499,6 @@ bells.forEach(b => {
     </div>`;
 });
 
-// Библиотека
 let libFilter = 'books';
 function renderLibrary() {
   const lib = document.getElementById('libraryList');
@@ -521,7 +511,7 @@ function renderLibrary() {
           <div class="title">${b.title}</div>
           <div class="author">${b.author}</div>
           <div class="actions">
-            <button class="btn-mini" onclick="openBook('${b.title}')">📖 Читать</button>
+            <button class="btn-mini" onclick="alert('Открываю: ${b.title}')">📖 Читать</button>
             <button class="btn-mini" onclick="alert('Добавлено в закладки: ${b.title}')">★</button>
           </div>
         </div>
@@ -534,12 +524,8 @@ function switchLib(type, btn) {
   btn.classList.add('active');
   renderLibrary();
 }
-function openBook(title) {
-  alert('📖 Открываю: ' + title + '\\n\\n(Здесь можно вставить ссылку на PDF или онлайн-библиотеку)');
-}
 renderLibrary();
 
-// Уведомления
 const notifList = document.getElementById('notifList');
 document.getElementById('notifCount').textContent = notifications.length;
 notifications.forEach(n => {
@@ -550,7 +536,6 @@ notifications.forEach(n => {
     </div>`;
 });
 
-// Столовая
 const menuList = document.getElementById('menuList');
 const todayMenu = menu[todayIdx] || menu[1];
 todayMenu.forEach(m => {
@@ -561,7 +546,6 @@ todayMenu.forEach(m => {
     </div>`;
 });
 
-// Напоминания
 const remindersList = document.getElementById('remindersList');
 reminders.forEach(r => {
   remindersList.innerHTML += `
@@ -571,69 +555,84 @@ reminders.forEach(r => {
     </div>`;
 });
 
-// Навигация
-function showPage(page, btn) {
-  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-  document.getElementById('page-' + page).classList.add('active');
-  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
-  btn.classList.add('active');
-  window.scrollTo(0,0);
+/* ============ ПОМОЩНИК (чат) ============ */
+const chatBox = document.getElementById('chatBox');
+
+function addMsg(text, who) {
+  const div = document.createElement('div');
+  div.className = 'msg ' + who;
+  div.textContent = text;
+  chatBox.appendChild(div);
+  chatBox.scrollTop = chatBox.scrollHeight;
 }
 
-// Задать вопрос
-function askQuestion() {
-  if (window.WebApp && window.WebApp.openLink) {
-    // Ссылка на чат с ботом
-    window.WebApp.openLink('https://max.ru/se14409668_bot');
-  } else {
-    alert('💬 Напишите свой вопрос боту в MAX: @se14409668_bot');
-  }
+function sendMsg() {
+  const input = document.getElementById('chatInput');
+  const text = input.value.trim();
+  if (!text) return;
+  addMsg(text, 'user');
+  input.value = '';
+  setTimeout(() => addMsg(botAnswer(text), 'bot'), 300);
 }
 
-// Уведомления браузера
-function testNotify() {
-  if (!('Notification' in window)) {
-    alert('Браузер не поддерживает уведомления');
-    return;
+function quickAsk(text) {
+  addMsg(text, 'user');
+  setTimeout(() => addMsg(botAnswer(text), 'bot'), 300);
+}
+
+function botAnswer(q) {
+  const lower = q.toLowerCase();
+
+  // Помощь
+  if (lower.includes('привет') || lower.includes('здравствуй') || lower.includes('хай')) {
+    return 'Привет! 👋 Спроси меня про: расписание, звонки, столовая, учителя, библиотека, оценки.';
   }
-  Notification.requestPermission().then(perm => {
-    if (perm === 'granted') {
-      new Notification('🎓 Школьный помощник', {
-        body: 'Уведомления включены! Буду напоминать про уроки.'
-      });
-    } else {
-      alert('Разрешите уведомления в настройках браузера');
+  if (lower.includes('спасибо') || lower.includes('благодар')) {
+    return 'Пожалуйста! 😊 Рад помочь.';
+  }
+  if (lower.includes('что ты умеешь') || lower.includes('помощь') || lower === 'help') {
+    return `Я умею отвечать на:
+• 📅 расписание — на сегодня/завтра
+• 🔔 сейчас / какой урок — текущий урок
+• ⏰ звонки — расписание звонков
+• 🍽 столовая / обед / меню — что в столовой
+• 📝 оценки — последние оценки
+• 📖 библиотека / книги — что почитать
+• 👩‍🏫 учителя — кто ведёт предметы
+• 🏃 секции / кружки — куда сходить
+• 📚 домашка — про домашнее задание
+• 😴 отдых — совет по отдыху
+Просто напиши одно из слов.`;
+  }
+
+  // Расписание на завтра
+  if (lower.includes('завтра')) {
+    const tomorrow = (todayIdx + 1) > 5 ? 1 : (todayIdx === 0 ? 1 : todayIdx + 1);
+    return '📅 Расписание на ' + days[tomorrow] + ':\n' + lessonsToText(schedule[tomorrow] || []);
+  }
+  // Расписание на сегодня / просто "расписание"
+  if (lower.includes('расписание') || lower.includes('уроки')) {
+    const d = (todayIdx >= 1 && todayIdx <= 5) ? todayIdx : 1;
+    return '📅 Расписание на ' + days[d] + ':\n' + lessonsToText(schedule[d] || []);
+  }
+
+  // Текущий урок
+  if (lower.includes('сейчас') || lower.includes('какой урок') || lower.includes('идёт')) {
+    const n = new Date();
+    const mins = n.getHours()*60 + n.getMinutes();
+    const day = n.getDay();
+    if (day < 1 || day > 5) return 'Сегодня выходной! 🎉 Уроков нет.';
+    const lessons = schedule[day] || [];
+    for (let i = 0; i < lessons.length; i++) {
+      if (lessons[i].name === '—') continue;
+      const [sh,sm] = bells[i].start.split(':').map(Number);
+      const [eh,em] = bells[i].end.split(':').map(Number);
+      if (mins >= sh*60+sm && mins <= eh*60+em) {
+        return `🔔 Сейчас идёт: ${lessons[i].name}\n👩‍🏫 ${teachers[lessons[i].name] || ''}\n📍 каб. ${lessons[i].room}\n⏰ до ${bells[i].end}`;
+      }
     }
-  });
-}
-
-// Автонапоминание «Сейчас идёт урок» каждые 5 минут
-setInterval(() => {
-  if (Notification.permission !== 'granted') return;
-  const n = new Date();
-  const mins = n.getHours()*60 + n.getMinutes();
-  const day = n.getDay();
-  if (day < 1 || day > 5) return;
-  const lessons = schedule[day] || [];
-  for (let i = 0; i < lessons.length; i++) {
-    if (lessons[i].name === '—') continue;
-    const [sh,sm] = bells[i].start.split(':').map(Number);
-    if (mins === sh*60+sm) {
-      new Notification('🔔 Начался урок', {
-        body: `${lessons[i].name} — каб. ${lessons[i].room}`
-      });
-      break;
-    }
-  }
-}, 60000);
-
-// Приветствие из MAX
-if (window.WebApp && window.WebApp.initDataUnsafe) {
-  const user = window.WebApp.initDataUnsafe.user;
-  if (user && user.first_name) {
-    document.querySelector('header h1').textContent = '🎓 Привет, ' + user.first_name + '!';
-  }
-}
-</script>
-</body>
-</html>
+    for (let i = 0; i < lessons.length; i++) {
+      if (lessons[i].name === '—') continue;
+      const [sh,sm] = bells[i].start.split(':').map(Number);
+      if (mins < sh*60+sm) {
+        return `⏰ Сейчас перемена. Следующий урок: ${lessons[i].name}\n📍 каб. ${lessons[i].room}\n🕐 начало в ${bells
