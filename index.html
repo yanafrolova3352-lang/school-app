@@ -115,8 +115,6 @@
     margin-bottom:8px; font-size:13px;
   }
   .reminder .emoji { font-size:20px; }
-
-  /* Чат помощника */
   .chat-box {
     background:#f8fafc; border-radius:12px;
     padding:12px; height:340px; overflow-y:auto;
@@ -125,6 +123,7 @@
   .msg {
     max-width:80%; padding:10px 12px; border-radius:12px;
     font-size:13px; line-height:1.4; word-wrap:break-word;
+    white-space:pre-line;
   }
   .msg.user {
     background:#4f46e5; color:#fff;
@@ -157,7 +156,6 @@
     cursor:pointer; font-weight:600;
   }
   .quick-btns button:hover { background:#e0e7ff; }
-
   nav {
     position:fixed; bottom:0; left:0; right:0;
     background:#fff; display:flex; justify-content:space-around;
@@ -283,7 +281,6 @@
 </nav>
 
 <script>
-/* ============ УЧИТЕЛЯ ============ */
 const teachers = {
   'Биология': 'Сироткина И.А.',
   'Английский язык': 'Шарова Е.Л.',
@@ -394,7 +391,6 @@ const reminders = [
   {emoji:'😴', text:'Отдых после уроков: 30 мин без телефона'}
 ];
 
-/* ============ ОТОБРАЖЕНИЕ ============ */
 const days = ['Воскресенье','Понедельник','Вторник','Среда','Четверг','Пятница','Суббота'];
 const today = new Date();
 const todayIdx = today.getDay();
@@ -555,7 +551,6 @@ reminders.forEach(r => {
     </div>`;
 });
 
-/* ============ ПОМОЩНИК (чат) ============ */
 const chatBox = document.getElementById('chatBox');
 
 function addMsg(text, who) {
@@ -583,7 +578,6 @@ function quickAsk(text) {
 function botAnswer(q) {
   const lower = q.toLowerCase();
 
-  // Помощь
   if (lower.includes('привет') || lower.includes('здравствуй') || lower.includes('хай')) {
     return 'Привет! 👋 Спроси меня про: расписание, звонки, столовая, учителя, библиотека, оценки.';
   }
@@ -605,18 +599,15 @@ function botAnswer(q) {
 Просто напиши одно из слов.`;
   }
 
-  // Расписание на завтра
   if (lower.includes('завтра')) {
     const tomorrow = (todayIdx + 1) > 5 ? 1 : (todayIdx === 0 ? 1 : todayIdx + 1);
     return '📅 Расписание на ' + days[tomorrow] + ':\n' + lessonsToText(schedule[tomorrow] || []);
   }
-  // Расписание на сегодня / просто "расписание"
   if (lower.includes('расписание') || lower.includes('уроки')) {
     const d = (todayIdx >= 1 && todayIdx <= 5) ? todayIdx : 1;
     return '📅 Расписание на ' + days[d] + ':\n' + lessonsToText(schedule[d] || []);
   }
 
-  // Текущий урок
   if (lower.includes('сейчас') || lower.includes('какой урок') || lower.includes('идёт')) {
     const n = new Date();
     const mins = n.getHours()*60 + n.getMinutes();
@@ -635,4 +626,137 @@ function botAnswer(q) {
       if (lessons[i].name === '—') continue;
       const [sh,sm] = bells[i].start.split(':').map(Number);
       if (mins < sh*60+sm) {
-        return `⏰ Сейчас перемена. Следующий урок: ${lessons[i].name}\n📍 каб. ${lessons[i].room}\n🕐 начало в ${bells
+        return `⏰ Сейчас перемена. Следующий урок: ${lessons[i].name}\n📍 каб. ${lessons[i].room}\n🕐 начало в ${bells[i].start}`;
+      }
+    }
+    return '🔔 Уроки на сегодня закончились! Отдыхай. 😊';
+  }
+
+  if (lower.includes('звонк') || lower.includes('перемен')) {
+    return '⏰ Расписание звонков:\n' + bells.map(b => `${b.n}: ${b.start}–${b.end}`).join('\n');
+  }
+
+  if (lower.includes('столов') || lower.includes('обед') || lower.includes('меню') || lower.includes('покушать') || lower.includes('перекус')) {
+    const d = (todayIdx >= 1 && todayIdx <= 5) ? todayIdx : 1;
+    const m = menu[d] || [];
+    return '🍽 Меню на ' + days[d] + ':\n' + m.map(i => `• ${i.name} — ${i.price}`).join('\n');
+  }
+
+  if (lower.includes('учител') || lower.includes('препод')) {
+    const unique = {};
+    Object.keys(teachers).forEach(subj => {
+      const t = teachers[subj];
+      if (!unique[t]) unique[t] = [];
+      unique[t].push(subj);
+    });
+    let out = '👩‍🏫 Учителя:\n';
+    Object.keys(unique).forEach(t => {
+      out += `• ${t}: ${unique[t].join(', ')}\n`;
+    });
+    return out;
+  }
+
+  if (lower.includes('библиотек') || lower.includes('книг') || lower.includes('почитать') || lower.includes('произведен')) {
+    const booksList = books.filter(b => b.type === 'books');
+    return '📖 Произведения по литературе:\n' + booksList.map(b => `• ${b.title} — ${b.author}`).join('\n');
+  }
+  if (lower.includes('учебник')) {
+    const tb = books.filter(b => b.type === 'textbooks');
+    return '📚 Учебники 11 класса:\n' + tb.map(b => `• ${b.title} — ${b.author}`).join('\n');
+  }
+
+  if (lower.includes('оценк') || lower.includes('успеваем')) {
+    const grades = notifications.filter(n => n.type === 'grade');
+    if (!grades.length) return '📝 Пока новых оценок нет.';
+    return '📝 Последние оценки:\n' + grades.map(g => '• ' + g.text).join('\n');
+  }
+
+  if (lower.includes('изменен') || lower.includes('замен')) {
+    const warns = notifications.filter(n => n.type === 'warn');
+    if (!warns.length) return '⚠️ Изменений в расписании нет.';
+    return '⚠️ Изменения:\n' + warns.map(w => '• ' + w.text).join('\n');
+  }
+
+  if (lower.includes('домашк') || lower.includes('дз') || lower.includes('домашнее')) {
+    return '📚 Не забудь записать домашнее задание!\nПосмотри в электронном дневнике или спроси у одноклассников.';
+  }
+
+  if (lower.includes('секц') || lower.includes('кружк') || lower.includes('доп')) {
+    return '🏃 Секции и кружки уточняй у классного руководителя — Ледневой Н.А.';
+  }
+
+  if (lower.includes('отдых') || lower.includes('устал') || lower.includes('перерыв')) {
+    return '😌 Совет: сделай перерыв на 5–10 минут.\n• Разомни шею и спину\n• Посмотри в окно\n• Попей воды\n• Не сиди в телефоне';
+  }
+
+  if (lower.includes('классн') || lower.includes('руководител')) {
+    return '👩‍🏫 Классный руководитель 11 класса — Леднева Наталия Алексеевна.';
+  }
+
+  if (lower.includes('школ') || lower.includes('класс')) {
+    return '🏫 Школа №4, 11 класс.\nКлассный руководитель — Леднева Н.А.';
+  }
+
+  return '🤔 Извини, я не понял вопрос.\nПопробуй спросить: "расписание", "сейчас", "столовая", "учителя", "библиотека", "оценки".\nИли напиши "что ты умеешь" — покажу все команды.';
+}
+
+function lessonsToText(lessons) {
+  if (!lessons.length) return '— нет уроков —';
+  return lessons.map((l, i) => {
+    if (l.name === '—') return `${i+1}. — нет урока —`;
+    return `${i+1}. ${bells[i]?.start || ''} ${l.name} (каб. ${l.room})`;
+  }).join('\n');
+}
+
+function showPage(page, btn) {
+  document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+  document.getElementById('page-' + page).classList.add('active');
+  document.querySelectorAll('nav button').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  window.scrollTo(0,0);
+}
+
+function testNotify() {
+  if (!('Notification' in window)) {
+    alert('Браузер не поддерживает уведомления');
+    return;
+  }
+  Notification.requestPermission().then(perm => {
+    if (perm === 'granted') {
+      new Notification('🎓 Школьный помощник', {
+        body: 'Уведомления включены! Буду напоминать про уроки.'
+      });
+    } else {
+      alert('Разрешите уведомления в настройках браузера');
+    }
+  });
+}
+
+setInterval(() => {
+  if (Notification.permission !== 'granted') return;
+  const n = new Date();
+  const mins = n.getHours()*60 + n.getMinutes();
+  const day = n.getDay();
+  if (day < 1 || day > 5) return;
+  const lessons = schedule[day] || [];
+  for (let i = 0; i < lessons.length; i++) {
+    if (lessons[i].name === '—') continue;
+    const [sh,sm] = bells[i].start.split(':').map(Number);
+    if (mins === sh*60+sm) {
+      new Notification('🔔 Начался урок', {
+        body: `${lessons[i].name} — каб. ${lessons[i].room}`
+      });
+      break;
+    }
+  }
+}, 60000);
+
+if (window.WebApp && window.WebApp.initDataUnsafe) {
+  const user = window.WebApp.initDataUnsafe.user;
+  if (user && user.first_name) {
+    document.querySelector('header h1').textContent = '🎓 Привет, ' + user.first_name + '!';
+  }
+}
+</script>
+</body>
+</html>
